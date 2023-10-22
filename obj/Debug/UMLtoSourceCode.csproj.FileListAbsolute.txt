@@ -1,0 +1,10 @@
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\bin\Debug\UMLtoSourceCode.exe.config
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\bin\Debug\UMLtoSourceCode.exe
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\bin\Debug\UMLtoSourceCode.pdb
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.AssemblyReference.cache
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.Form1.resources
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.Properties.Resources.resources
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.GenerateResource.cache
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.CoreCompileInputs.cache
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.exe
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.pdb
