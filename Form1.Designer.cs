@@ -36,8 +36,8 @@
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.richTextBox2 = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -79,11 +79,11 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(434, 33);
+            this.label2.Location = new System.Drawing.Point(455, 27);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(354, 31);
+            this.label2.Size = new System.Drawing.Size(329, 31);
             this.label2.TabIndex = 5;
-            this.label2.Text = "UML to Java Source Code";
+            this.label2.Text = "UML to C# Source Code";
             // 
             // openFileDialog1
             // 
@@ -115,6 +115,14 @@
             this.tabPage1.Text = "Input";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(767, 340);
+            this.richTextBox1.TabIndex = 0;
+            this.richTextBox1.Text = "";
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.richTextBox2);
@@ -125,14 +133,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Output";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(767, 340);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "";
             // 
             // richTextBox2
             // 
