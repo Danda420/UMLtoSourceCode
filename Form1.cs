@@ -10,12 +10,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using Newtonsoft.Json;
+using UMLtoSourceCode.Class;
 
 namespace UMLtoSourceCode
 {
     public partial class Form1 : Form
     {
-        public string umlDiagramTxt;
+        public string umlDiagramJson;
 
         public Form1()
         {
@@ -30,21 +32,36 @@ namespace UMLtoSourceCode
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "Open Text File";
-            dialog.Filter = "TXT files|*.txt";
+            dialog.Title = "Open Json Diagram File";
+            dialog.Filter = "Json Diagram Files|*.json";
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                umlDiagramTxt = File.ReadAllText(dialog.FileName);
-                richTextBox1.Text = umlDiagramTxt;
+                umlDiagramJson = File.ReadAllText(dialog.FileName);
+                richTextBox1.Text = umlDiagramJson;
             }
         }
-
+        
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            string umlDiagram = umlDiagramTxt;
-            richTextBox2.Text = umlDiagram;
+            string umlDiagram = umlDiagramJson;
+            JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagram);
+            richTextBox2.Clear();
+            foreach (JsonData.Model model in json.model)
+            {
+                richTextBox2.AppendText("class " + model.class_name + "\n");
+                richTextBox2.AppendText("{\n");
 
+                if (model.attributes != null)
+                {
+                    foreach (JsonData.Attribute1 attribute in model.attributes)
+                    {
+                        richTextBox2.AppendText("   public " + attribute.data_type + " " + attribute.attribute_name + ";\n");
+                    }
+                }
+                richTextBox2.AppendText("}\n");
+                richTextBox2.AppendText("\n");
+            }
         }
 
         private void btnReset_Click(object sender, EventArgs e)

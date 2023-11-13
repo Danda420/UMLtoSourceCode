@@ -8,3 +8,6 @@ C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.
 C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.CoreCompileInputs.cache
 C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.exe
 C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.pdb
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\bin\Debug\Newtonsoft.Json.dll
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\bin\Debug\Newtonsoft.Json.xml
+C:\Users\danda\Desktop\PRJ\UAS\UMLtoSourceCode\obj\Debug\UMLtoSourceCode.csproj.CopyComplete
