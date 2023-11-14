@@ -49,18 +49,26 @@ namespace UMLtoSourceCode
             richTextBox2.Clear();
             foreach (JsonData.Model model in json.model)
             {
-                richTextBox2.AppendText("class " + model.class_name + "\n");
-                richTextBox2.AppendText("{\n");
-
-                if (model.attributes != null)
+                if (model.type == "class" )
                 {
+                    richTextBox2.AppendText("class " + model.class_name + "\n");
+                    richTextBox2.AppendText("{\n");
                     foreach (JsonData.Attribute1 attribute in model.attributes)
                     {
                         richTextBox2.AppendText("   public " + attribute.data_type + " " + attribute.attribute_name + ";\n");
                     }
+                    richTextBox2.AppendText("}\n");
+                    richTextBox2.AppendText("\n");
                 }
-                richTextBox2.AppendText("}\n");
-                richTextBox2.AppendText("\n");
+                if (model.type == "association")
+                {
+                    richTextBox2.AppendText("association : " + model.name + "\n");
+                    foreach (JsonData.Attribute attribute_asoc in model.model.attributes)
+                    {
+                        richTextBox2.AppendText("association " + model.name + " : " + attribute_asoc.data_type + " " + attribute_asoc.attribute_name + ";\n");
+                    }
+                    richTextBox2.AppendText("\n");
+                }
             }
         }
 
