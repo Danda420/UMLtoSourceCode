@@ -20,8 +20,9 @@ namespace UMLtoSourceCode.Class
             public string class_name { get; set; }
             public string KL { get; set; }
             public Attribute1[] attributes { get; set; }
+            public State[] states { get; set; }
             public string name { get; set; }
-            public Class1[] _class { get; set; }
+            public Class1[] @class { get; set; }
             public Model1 model { get; set; }
         }
 
@@ -49,11 +50,21 @@ namespace UMLtoSourceCode.Class
             public string default_value { get; set; }
         }
 
+        public class State
+        {
+            public string state_id { get; set; }
+            public string state_name { get; set; }
+            public string state_value { get; set; }
+            public string state_type { get; set; }
+            public string[] state_event { get; set; }
+            public string[] state_function { get; set; }
+        }
+
         public class Class1
         {
             public string class_id { get; set; }
             public string class_name { get; set; }
+            public string class_multiplicity { get; set; }
         }
     }
-
 }

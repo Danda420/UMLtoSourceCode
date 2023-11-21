@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using UMLtoSourceCode.Class;
 using static System.Windows.Forms.AxHost;
 using static UMLtoSourceCode.Class.JsonData;
+using Newtonsoft.Json.Linq;
 
 namespace UMLtoSourceCode
 {
@@ -41,82 +42,177 @@ namespace UMLtoSourceCode
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 umlDiagramJson = File.ReadAllText(dialog.FileName);
-                tabControl1.SelectTab(tabPage2);
+                tabControl1.SelectTab(tabPage1);
                 richTextBox1.Text = umlDiagramJson;
             }
         }
         
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            string umlDiagram = umlDiagramJson;
             richTextBox2.Clear();
             tabControl1.SelectTab(tabPage2);
-            if (umlDiagram == null)
+            if (umlDiagramJson == null)
             {
                 richTextBox2.Clear();
                 richTextBox2.Text = "No file supplied!";
             }
             else
             {
-                JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagram);
-                richTextBox2.AppendText($"namespace {json.sub_name}\n");
-                richTextBox2.AppendText("{\n");
+                JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagramJson);
+                StringBuilder SourceCodeBuilder = new StringBuilder();
+
+                SourceCodeBuilder.AppendLine($"namespace {json.sub_name}");
+                SourceCodeBuilder.AppendLine("{");
+
                 foreach (JsonData.Model model in json.model)
                 {
+                    // Classes START
                     if (model.type == "class")
                     {
                         var attrInfoList = new List<string>();
-                        richTextBox2.AppendText($"   public class {model.class_name}\n");
-                        richTextBox2.AppendText("   {\n");
+                        var states = new List<string>();
+
+                        if (model.states != null)
+                        {
+                            foreach (JsonData.State state in model.states)
+                            {
+                                string stateAdd = $"        {state.state_name}";
+                                states.Add(stateAdd);
+                            }
+                            SourceCodeBuilder.AppendLine($"   public enum {model.class_name}States");
+                            SourceCodeBuilder.AppendLine("   {");
+                            SourceCodeBuilder.AppendLine(string.Join(",\n", states));
+                            SourceCodeBuilder.AppendLine("   }");
+                            SourceCodeBuilder.AppendLine("");
+                        }
+
+                        SourceCodeBuilder.AppendLine($"   public class {model.class_name}");
+                        SourceCodeBuilder.AppendLine("   {");
                         foreach (JsonData.Attribute1 attr in model.attributes)
                         {
-                            dataType = attr.data_type;
+                            string dataType = attr.data_type;
                             if ((dataType == "id") || (dataType == "integer"))
                             {
                                 dataType = "int";
-                            } 
+                            }
                             else if (dataType == "real")
                             {
                                 dataType = "float";
                             }
-                            else if (dataType == "state")
-                            {
-                                dataType = "string";
-                            }
+
                             if (attr.default_value != null)
                             {
-                                richTextBox2.AppendText($"      public {dataType} {attr.attribute_name} " + "{ get; set; }"+ " = " + '"' + attr.default_value + '"' + ";\n");
-                            } else
-                            {
-                                richTextBox2.AppendText($"      public {dataType} {attr.attribute_name} " + "{ get; set; }\n");
+                                string input = attr.default_value;
+                                int dot = input.IndexOf('.');
+                                if (dot != -1)
+                                {
+                                    string state = input.Substring(dot + 1);
+                                    SourceCodeBuilder.AppendLine($"      " +
+                                        $"public {model.class_name}States {attr.attribute_name} " + "{ get; set; }" + $" = {model.class_name}States.{state}" + ";");
+                                }
                             }
-                            string attrInfo = $"{dataType} {attr.attribute_name}";
-                            attrInfoList.Add(attrInfo);
+                            else
+                            {
+                                SourceCodeBuilder.AppendLine($"      " +
+                                    $"public {dataType} {attr.attribute_name} " + "{ get; set; }");
+                            }
+
+                            if (attr.data_type != "state")
+                            {
+                                string attrInfo = $"{dataType} {attr.attribute_name}";
+                                attrInfoList.Add(attrInfo);
+                            }
                         }
-                        richTextBox2.AppendText("\n");
+                        SourceCodeBuilder.AppendLine("");
 
                         string constructor = string.Join(", ", attrInfoList);
-                        richTextBox2.AppendText($"      public {model.class_name} ({constructor})\n");
-                        richTextBox2.AppendText("       {\n");
+                        SourceCodeBuilder.AppendLine($"      " +
+                            $"public {model.class_name} ({constructor})");
+                        SourceCodeBuilder.AppendLine("       {");
                         foreach (JsonData.Attribute1 attr in model.attributes)
                         {
-                            richTextBox2.AppendText($"           this.{attr.attribute_name} = {attr.attribute_name};\n");
+                            if (attr.data_type != "state")
+                            {
+                                SourceCodeBuilder.AppendLine($"           " +
+                                    $"this.{attr.attribute_name} = {attr.attribute_name};");
+                            }
                         }
-                        richTextBox2.AppendText("       }\n");
-                        richTextBox2.AppendText("   }\n");
-                        richTextBox2.AppendText("\n");
+                        SourceCodeBuilder.AppendLine("       }");
+                        SourceCodeBuilder.AppendLine("   }");
+                        SourceCodeBuilder.AppendLine("");
                     }
-                    if (model.type == "association")
+                    // Classes END
+
+                    // Associations START
+                    if (model.type == "association" && model.model != null)
                     {
-                        richTextBox2.AppendText($"   association : {model.name}\n");
-                        foreach (JsonData.Attribute attr_asoc in model.model.attributes)
+                        SourceCodeBuilder.AppendLine($"   " +
+                            $"public class {model.model.class_name}");
+                        SourceCodeBuilder.AppendLine("   {");
+
+                        var assocAttrname = new List<string>();
+                        foreach (JsonData.Attribute assocAttr in model.model.attributes)
                         {
-                            richTextBox2.AppendText($"   association {model.name} : {attr_asoc.data_type} {attr_asoc.attribute_name};\n");
+                            string dataType = assocAttr.data_type;
+                            if ((dataType == "id") || (dataType == "integer"))
+                            {
+                                dataType = "int";
+                            }
+                            else if (dataType == "real")
+                            {
+                                dataType = "float";
+                            }
+                            SourceCodeBuilder.AppendLine($"      " +
+                                $"public {dataType} {assocAttr.attribute_name} " + "{ get; set; }");
+
+                            string attrInfo = $"{dataType} {assocAttr.attribute_name}";
+                            assocAttrname.Add(attrInfo);
                         }
-                        richTextBox2.AppendText("\n");
+                        SourceCodeBuilder.AppendLine("");
+
+                        string assocAttrconstructor = string.Join(", ", assocAttrname);
+                        SourceCodeBuilder.AppendLine($"      " +
+                            $"public {model.model.class_name} ({assocAttrconstructor})");
+                        SourceCodeBuilder.AppendLine("       {");
+                        foreach (JsonData.Attribute assocAttr in model.model.attributes)
+                        {
+                            SourceCodeBuilder.AppendLine($"           " +
+                                $"this.{assocAttr.attribute_name} = {assocAttr.attribute_name};");
+                        }
+                        SourceCodeBuilder.AppendLine("       }");
+
+                        SourceCodeBuilder.AppendLine("");
+                        SourceCodeBuilder.AppendLine("   }");
+                        SourceCodeBuilder.AppendLine("");
                     }
+
+                    if (model.name != null)
+                    {
+                        SourceCodeBuilder.AppendLine($"   " +
+                            $"public class {model.name}");
+                        SourceCodeBuilder.AppendLine("   {");
+                        foreach (JsonData.Class1 asoc_class in model.@class)
+                        {
+                            if (asoc_class.class_multiplicity == "1..1")
+                            {
+                                SourceCodeBuilder.AppendLine($"      " +
+                                    $"public {asoc_class.class_name} {asoc_class.class_name} " + "{ get; set; }");
+                            }
+                            else
+                            {
+                                SourceCodeBuilder.AppendLine($"      " +
+                                    $"public List<{asoc_class.class_name}> {asoc_class.class_name}s " + "{ get; set; }");
+                            }
+                        }
+                        SourceCodeBuilder.AppendLine("   }");
+                        SourceCodeBuilder.AppendLine("");
+                    }
+                    // Associations END
                 }
-                richTextBox2.AppendText("}\n");
+                SourceCodeBuilder.AppendLine("}");
+
+                string SourceCode = SourceCodeBuilder.ToString();
+                richTextBox2.AppendText(SourceCode);
             }
         }
 
