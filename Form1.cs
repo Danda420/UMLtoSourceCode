@@ -44,17 +44,18 @@ namespace UMLtoSourceCode
                 umlDiagramJson = File.ReadAllText(dialog.FileName);
                 tabControl1.SelectTab(tabPage1);
                 richTextBox1.Text = umlDiagramJson;
+                label1.Text = "";
             }
         }
         
         private void btnConvert_Click(object sender, EventArgs e)
         {
+            label1.Text = "";
             richTextBox2.Clear();
             tabControl1.SelectTab(tabPage2);
             if (umlDiagramJson == null)
             {
-                richTextBox2.Clear();
-                richTextBox2.Text = "No file supplied!";
+                label1.Text = "No file supplied!";
             }
             else
             {
@@ -244,6 +245,30 @@ namespace UMLtoSourceCode
         {
             richTextBox1.Clear();
             richTextBox2.Clear();
+            label1.Text = "";
+        }
+
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+
+            dialog.Title = "Save into C# Source code";
+            dialog.DefaultExt = "cs";
+            dialog.Filter = "C# Source code (*.cs)|*.cs|C# Source code (*.*)|*.*";
+
+            if (richTextBox2.Text != "")
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    string fileName = dialog.FileName;
+
+                    File.WriteAllText(fileName, richTextBox2.Text);
+                }
+            }
+            else
+            {
+                label1.Text = "There's no code generated!";
+            }
         }
     }
 }
