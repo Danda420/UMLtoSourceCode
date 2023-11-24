@@ -61,6 +61,19 @@ namespace UMLtoSourceCode
             {
                 JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagramJson);
                 StringBuilder SourceCodeBuilder = new StringBuilder();
+                StringBuilder AssocBuilder = new StringBuilder();
+
+                foreach (JsonData.Model model in json.model)
+                {
+                    if (model.model != null)
+                    {
+                        foreach (JsonData.Class1 class1 in model.@class)
+                        {
+                            AssocBuilder.AppendLine($"      " +
+                            $"{class1.class_name} public List<{model.model.class_name}> {model.model.class_name}List  " + "{ get; set; }");
+                        }
+                    }
+                }
 
                 SourceCodeBuilder.AppendLine($"namespace {json.sub_name}");
                 SourceCodeBuilder.AppendLine("{");
@@ -73,22 +86,21 @@ namespace UMLtoSourceCode
                         var attrInfoList = new List<string>();
                         var states = new List<string>();
 
+                        SourceCodeBuilder.AppendLine($"   public class {model.class_name}");
+                        SourceCodeBuilder.AppendLine("   {");
+
                         if (model.states != null)
                         {
                             foreach (JsonData.State state in model.states)
                             {
-                                string stateAdd = $"        {state.state_name}";
+                                string stateAdd = state.state_name;
                                 states.Add(stateAdd);
                             }
-                            SourceCodeBuilder.AppendLine($"   public enum {model.class_name}States");
-                            SourceCodeBuilder.AppendLine("   {");
-                            SourceCodeBuilder.AppendLine(string.Join(",\n", states));
-                            SourceCodeBuilder.AppendLine("   }");
+                            SourceCodeBuilder.AppendLine("      " +
+                                $"public enum {model.class_name}States" + "{" + string.Join(", ", states) + "}");
                             SourceCodeBuilder.AppendLine("");
                         }
 
-                        SourceCodeBuilder.AppendLine($"   public class {model.class_name}");
-                        SourceCodeBuilder.AppendLine("   {");
                         foreach (JsonData.Attribute1 attr in model.attributes)
                         {
                             string dataType = attr.data_type;
@@ -98,7 +110,13 @@ namespace UMLtoSourceCode
                             }
                             else if (dataType == "real")
                             {
-                                dataType = "float";
+                                dataType = "double";
+                            }
+
+                            if (attr.data_type == "id" && attr.attribute_type != "referential_attribute")
+                            {
+                                SourceCodeBuilder.AppendLine("      " +
+                                    $"private static int lastAssigned{attr.attribute_name} = 0;");
                             }
 
                             if (attr.default_value != null)
@@ -108,34 +126,64 @@ namespace UMLtoSourceCode
                                 if (dot != -1)
                                 {
                                     string state = input.Substring(dot + 1);
-                                    SourceCodeBuilder.AppendLine($"      " +
+                                    SourceCodeBuilder.AppendLine("      " +
                                         $"public {model.class_name}States {attr.attribute_name} " + "{ get; set; }" + $" = {model.class_name}States.{state}" + ";");
                                 }
                             }
+                            else if (attr.data_type == "id")
+                            {
+                                SourceCodeBuilder.AppendLine("      " +
+                                    $"public {dataType} {attr.attribute_name} " + "{ get; private set; }");
+                            }
                             else
                             {
-                                SourceCodeBuilder.AppendLine($"      " +
+                                SourceCodeBuilder.AppendLine("      " +
                                     $"public {dataType} {attr.attribute_name} " + "{ get; set; }");
                             }
 
                             if (attr.data_type != "state")
                             {
-                                string attrInfo = $"{dataType} {attr.attribute_name}";
-                                attrInfoList.Add(attrInfo);
+                                if (attr.data_type != "id" && attr.attribute_type != "referential_attribute")
+                                {
+                                    string attrInfo = $"{dataType} {attr.attribute_name}";
+                                    attrInfoList.Add(attrInfo);
+                                }
                             }
                         }
+                        // Associations START
+                        foreach (var assoc in AssocBuilder.ToString().Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            string assocTrim = assoc.Trim();
+                            int stSpace = assocTrim.IndexOf(' ');
+
+                            if (assocTrim.StartsWith($"{model.class_name} ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                SourceCodeBuilder.AppendLine("      " +
+                                    assocTrim.Substring(stSpace + 1));
+                            }
+                        }
+                        // Associations END
+
                         SourceCodeBuilder.AppendLine("");
 
                         string constructor = string.Join(", ", attrInfoList);
-                        SourceCodeBuilder.AppendLine($"      " +
+                        SourceCodeBuilder.AppendLine("      " +
                             $"public {model.class_name} ({constructor})");
                         SourceCodeBuilder.AppendLine("       {");
                         foreach (JsonData.Attribute1 attr in model.attributes)
                         {
                             if (attr.data_type != "state")
                             {
-                                SourceCodeBuilder.AppendLine($"           " +
+                                if (attr.data_type == "id" && attr.attribute_type != "referential_attribute")
+                                {
+                                    SourceCodeBuilder.AppendLine("           " +
+                                    $"{attr.attribute_name} = ++lastAssigned{attr.attribute_name};");
+                                }
+                                else
+                                {
+                                    SourceCodeBuilder.AppendLine("           " +
                                     $"this.{attr.attribute_name} = {attr.attribute_name};");
+                                }
                             }
                         }
                         SourceCodeBuilder.AppendLine("       }");
@@ -144,14 +192,13 @@ namespace UMLtoSourceCode
                     }
                     // Classes END
 
-                    // Associations START
+                    // Associations1 START
                     if (model.type == "association" && model.model != null)
                     {
-                        SourceCodeBuilder.AppendLine($"   " +
+                        SourceCodeBuilder.AppendLine("   " +
                             $"public class {model.model.class_name}");
                         SourceCodeBuilder.AppendLine("   {");
 
-                        var assocAttrname = new List<string>();
                         foreach (JsonData.Attribute assocAttr in model.model.attributes)
                         {
                             string dataType = assocAttr.data_type;
@@ -161,71 +208,39 @@ namespace UMLtoSourceCode
                             }
                             else if (dataType == "real")
                             {
-                                dataType = "float";
+                                dataType = "double";
                             }
                             if (assocAttr.attribute_type == "referential_attribute")
                             {
-                                SourceCodeBuilder.AppendLine($"      " +
+                                SourceCodeBuilder.AppendLine("      " +
                                     $"public {dataType} {assocAttr.attribute_name} " + "{ get; set; } // Referential Attribute");
                             }
                             else
                             {
-                                SourceCodeBuilder.AppendLine($"      " +
+                                SourceCodeBuilder.AppendLine("      " +
                                     $"public {dataType} {assocAttr.attribute_name} " + "{ get; set; }");
                             }
-
-                            string attrInfo = $"{dataType} {assocAttr.attribute_name}";
-                            assocAttrname.Add(attrInfo);
                         }
                         SourceCodeBuilder.AppendLine("");
-
-                        string assocAttrconstructor = string.Join(", ", assocAttrname);
-                        SourceCodeBuilder.AppendLine($"      " +
-                            $"public {model.model.class_name} ({assocAttrconstructor})");
-                        SourceCodeBuilder.AppendLine("       {");
-                        foreach (JsonData.Attribute assocAttr in model.model.attributes)
-                        {
-                            SourceCodeBuilder.AppendLine($"           " +
-                                $"this.{assocAttr.attribute_name} = {assocAttr.attribute_name};");
-                        }
-                        SourceCodeBuilder.AppendLine("       }");
-
-                        SourceCodeBuilder.AppendLine("");
-                        SourceCodeBuilder.AppendLine("   }");
-                        SourceCodeBuilder.AppendLine("");
-                    }
-                }
-
-                foreach (JsonData.Model model in json.model)
-                {
-                    if (model.name != null)
-                    {
-                        SourceCodeBuilder.AppendLine($"   " +
-                            $"public class {model.name}");
-                        SourceCodeBuilder.AppendLine("   {");
                         foreach (JsonData.Class1 asoc_class in model.@class)
                         {
                             if (asoc_class.class_multiplicity == "1..1")
                             {
-                                SourceCodeBuilder.AppendLine($"      " +
+                                SourceCodeBuilder.AppendLine("      " +
                                     $"public {asoc_class.class_name} {asoc_class.class_name} " + "{ get; set; }");
                             }
                             else
                             {
-                                SourceCodeBuilder.AppendLine($"      " +
+                                SourceCodeBuilder.AppendLine("      " +
                                     $"public List<{asoc_class.class_name}> {asoc_class.class_name}List " + "{ get; set; }");
                             }
-                        }
-                        if (model.model != null)
-                        {
-                            SourceCodeBuilder.AppendLine($"      " +
-                                $"public List<{model.model.class_name}> {model.model.class_name}List  " + "{ get; set; }");
                         }
                         SourceCodeBuilder.AppendLine("   }");
                         SourceCodeBuilder.AppendLine("");
                     }
                 }
-                // Associations END
+                // Associations1 END
+
                 SourceCodeBuilder.AppendLine("  class Program");
                 SourceCodeBuilder.AppendLine("  {");
                 SourceCodeBuilder.AppendLine("      static void Main(string[] args)");
