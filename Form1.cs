@@ -495,6 +495,7 @@ namespace UMLtoSourceCode
                         JsonFilesContent.AppendLine(umlDiagramJson);
                     }
                     richTextBox1.Text = JsonFilesContent.ToString();
+                    btnConvert.Enabled = true;
                 }
             }
             else
@@ -510,6 +511,7 @@ namespace UMLtoSourceCode
                     tabControl1.SelectTab(tabPage1);
                     richTextBox1.Text = displayJson;
                     label1.Text = "";
+                    btnConvert.Enabled = true;
                 }
             }
         }
@@ -524,6 +526,7 @@ namespace UMLtoSourceCode
             {
                 singleJsonConvert(singleJson);
             }
+            saveButton.Enabled = true;
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -533,6 +536,8 @@ namespace UMLtoSourceCode
             label1.Text = "";
             singleJson = null;
             multiJsonFiles = null;
+            saveButton.Enabled = false;
+            btnConvert.Enabled = false;
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -543,24 +548,26 @@ namespace UMLtoSourceCode
             dialog.DefaultExt = "cs";
             dialog.Filter = "C# Source code (*.cs)|*.cs|C# Source code (*.*)|*.*";
 
-            if (richTextBox2.Text != "")
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    string fileName = dialog.FileName;
+                string fileName = dialog.FileName;
 
-                    File.WriteAllText(fileName, richTextBox2.Text);
-                }
-            }
-            else
-            {
-                label1.Text = "There's no code generated!";
+                File.WriteAllText(fileName, richTextBox2.Text);
             }
         }
 
         private void multiJsonSwitch_CheckedChanged(object sender, EventArgs e)
         {
             multiJson = multiJsonSwitch.Checked;
+
+            if (multiJson == true)
+            {
+                btnBrowse.Text = "Open Folder";
+            }
+            else
+            {
+                btnBrowse.Text = "Select File";
+            }
         }
     }
 }
