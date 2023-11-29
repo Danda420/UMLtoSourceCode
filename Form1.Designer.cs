@@ -42,6 +42,7 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.label1 = new System.Windows.Forms.Label();
+            this.multiJsonSwitch = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -50,17 +51,17 @@
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(13, 13);
+            this.btnBrowse.Location = new System.Drawing.Point(12, 13);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 0;
-            this.btnBrowse.Text = "Browse File";
+            this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
             this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // btnConvert
             // 
-            this.btnConvert.Location = new System.Drawing.Point(95, 14);
+            this.btnConvert.Location = new System.Drawing.Point(93, 13);
             this.btnConvert.Name = "btnConvert";
             this.btnConvert.Size = new System.Drawing.Size(140, 23);
             this.btnConvert.TabIndex = 1;
@@ -70,7 +71,7 @@
             // 
             // btnReset
             // 
-            this.btnReset.Location = new System.Drawing.Point(241, 14);
+            this.btnReset.Location = new System.Drawing.Point(239, 14);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 2;
@@ -83,7 +84,7 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(455, 27);
+            this.label2.Location = new System.Drawing.Point(662, 27);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(329, 31);
             this.label2.TabIndex = 5;
@@ -108,7 +109,7 @@
             this.tabControl1.Location = new System.Drawing.Point(13, 61);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(775, 366);
+            this.tabControl1.Size = new System.Drawing.Size(982, 470);
             this.tabControl1.TabIndex = 6;
             // 
             // tabPage1
@@ -117,7 +118,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(767, 340);
+            this.tabPage1.Size = new System.Drawing.Size(974, 444);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Input";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -130,7 +131,7 @@
             this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(767, 340);
+            this.richTextBox1.Size = new System.Drawing.Size(974, 444);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
@@ -159,11 +160,11 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(322, 14);
+            this.saveButton.Location = new System.Drawing.Point(320, 14);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 7;
-            this.saveButton.Text = "Save Output";
+            this.saveButton.Text = "Download";
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
@@ -172,16 +173,28 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Red;
-            this.label1.Location = new System.Drawing.Point(13, 39);
+            this.label1.Location = new System.Drawing.Point(106, 39);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(0, 20);
             this.label1.TabIndex = 8;
+            // 
+            // multiJsonSwitch
+            // 
+            this.multiJsonSwitch.AutoSize = true;
+            this.multiJsonSwitch.Location = new System.Drawing.Point(13, 38);
+            this.multiJsonSwitch.Name = "multiJsonSwitch";
+            this.multiJsonSwitch.Size = new System.Drawing.Size(87, 17);
+            this.multiJsonSwitch.TabIndex = 9;
+            this.multiJsonSwitch.Text = "Multiple Json";
+            this.multiJsonSwitch.UseVisualStyleBackColor = true;
+            this.multiJsonSwitch.CheckedChanged += new System.EventHandler(this.multiJsonSwitch_CheckedChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 439);
+            this.ClientSize = new System.Drawing.Size(1007, 543);
+            this.Controls.Add(this.multiJsonSwitch);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.tabControl1);
@@ -217,6 +230,7 @@
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox multiJsonSwitch;
     }
 }
 
