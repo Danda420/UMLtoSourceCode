@@ -22,6 +22,7 @@ namespace UMLtoSourceCode
 {
     public partial class Form1 : Form
     {
+        private HelpWindow helpWindowInstance;
         public string singleJson;
         public string[] multiJsonFiles;
         public string dataType;
@@ -35,26 +36,32 @@ namespace UMLtoSourceCode
             InitializeComponent();
         }
 
-        public void singleJsonConvert(string inputFile)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            if (inputFile == null)
-            {
-                label1.Text = "No Json File selected!!";
-                return;
-            }
 
-            string umlDiagramJson = File.ReadAllText(inputFile);
+        }
 
-            label1.Text = "";
+        public void reset()
+        {
+            richTextBox1.Clear();
             richTextBox2.Clear();
-            tabControl1.SelectTab(tabPage2);
+            label1.Text = "";
+            singleJson = null;
+            multiJsonFiles = null;
+            saveButton.Enabled = false;
+            btnConvert.Enabled = false;
+        }
 
+        public void converter(string umlDiagramJson)
+        {
             JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagramJson);
 
             SourceCodeBuilder.Clear();
             AssocBuilder.Clear();
 
-            foreach (JsonData.Model model in json.model)
+            // Assoc Builder START
+            StringBuilder aB = new StringBuilder();
+            foreach (JsonData.Model model in json.model.Where(model => model.type == "association"))
             {
                 if (model.model != null)
                 {
@@ -64,27 +71,51 @@ namespace UMLtoSourceCode
                         $"{class1.class_name} public List<{model.model.class_name}> {model.model.class_name}List  " + "{ get; set; }");
                     }
                 }
+                if (model.model == null)
+                {
+                    foreach (JsonData.Class1 class1 in model.@class)
+                    {
+                        aB.Append($"{class1.class_name} {class1.class_multiplicity}" + " ");
+                    }
+                    string aB_ = aB.ToString();
+                    string[] words = aB_.Split();
+
+                    if (words.Length >= 4)
+                    {
+                        string fstC = words[0];
+                        string fstM = words[1];
+                        string sndC = words[2];
+                        string sndM = words[3];
+                        string assoc = null;
+                        string assoc1 = null;
+                        if (fstM == "1..*" || fstM == "0..*")
+                        {
+                            assoc = $"{fstC} public List<{sndC}> {sndC}List " + "{ get; set; }";
+                        } 
+                        else if (fstM == "1..1")
+                        {
+                            assoc = $"{fstC} public {sndC} {sndC} " + "{ get; set; }";
+                        }
+
+                        if (sndM == "1..*" || sndM == "0..*")
+                        {
+                            assoc1 = $"{sndC} public List<{fstC}> {fstC} " + "{ get; set; }";
+                        }
+                        else if (sndM == "1..1")
+                        {
+                            assoc1 = $"{sndC} public {fstC} {fstC} " + "{ get; set; }";
+                        }
+
+                        AssocBuilder.AppendLine(assoc);
+                        AssocBuilder.AppendLine(assoc1);
+                    }
+                    aB.Clear();
+                }
             }
+            // Assoc Builder END
 
             SourceCodeBuilder.AppendLine($"namespace {json.sub_name}");
             SourceCodeBuilder.AppendLine("{");
-
-            foreach (JsonData.Model model in json.model)
-            {
-                var states = new List<string>();
-
-                if (model.states != null)
-                {
-                    foreach (JsonData.State state in model.states)
-                    {
-                        string stateAdd = state.state_name;
-                        states.Add(stateAdd);
-                    }
-                    SourceCodeBuilder.AppendLine("   " +
-                        $"public enum {model.class_name}States" + "{" + string.Join(", ", states) + "}");
-                    SourceCodeBuilder.AppendLine("");
-                }
-            }
 
             // Classes START
             foreach (JsonData.Model model in json.model)
@@ -127,8 +158,16 @@ namespace UMLtoSourceCode
                         }
                         else if (attr.data_type == "id")
                         {
-                            SourceCodeBuilder.AppendLine("      " +
+                            if (attr.attribute_type == "referential_attribute")
+                            {
+                                SourceCodeBuilder.AppendLine("      " +
+                                    $"public {dataType} {attr.attribute_name} " + "{ get; set; } // Referential Attribute");
+                            }
+                            else
+                            {
+                                SourceCodeBuilder.AppendLine("      " +
                                 $"public {dataType} {attr.attribute_name} " + "{ get; private set; }");
+                            }
                         }
                         else
                         {
@@ -158,6 +197,21 @@ namespace UMLtoSourceCode
                         }
                     }
                     // Associations END
+
+                    // STATES START
+                    var states = new List<string>();
+                    if (model.states != null)
+                    {
+                        SourceCodeBuilder.AppendLine("");
+                        foreach (JsonData.State state in model.states)
+                        {
+                            string stateAdd = state.state_name;
+                            states.Add(stateAdd);
+                        }
+                        SourceCodeBuilder.AppendLine("      " +
+                            $"public enum {model.class_name}States" + "{" + string.Join(", ", states) + "}");
+                    }
+                    // STATES END
 
                     SourceCodeBuilder.AppendLine("");
 
@@ -248,6 +302,25 @@ namespace UMLtoSourceCode
 
             string SourceCode = SourceCodeBuilder.ToString();
             richTextBox2.AppendText(SourceCode);
+            string aBB = aB.ToString();
+            richTextBox2.AppendText(aBB);
+        }
+
+        public void singleJsonConvert(string inputFile)
+        {
+            if (inputFile == null)
+            {
+                label1.Text = "No Json File selected!!";
+                return;
+            }
+
+            string umlDiagramJson = File.ReadAllText(inputFile);
+
+            label1.Text = "";
+            richTextBox2.Clear();
+            tabControl1.SelectTab(tabPage2);
+
+            converter(umlDiagramJson);
         }
 
         public void multiJsonConvert(IEnumerable<string> inputFolder)
@@ -266,212 +339,9 @@ namespace UMLtoSourceCode
             {
                 string umlDiagramJson = File.ReadAllText(jsonFile);
 
-                JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagramJson);
-
-                SourceCodeBuilder.Clear();
-                AssocBuilder.Clear();
-
-                foreach (JsonData.Model model in json.model)
-                {
-                    if (model.model != null)
-                    {
-                        foreach (JsonData.Class1 class1 in model.@class)
-                        {
-                            AssocBuilder.AppendLine($"      " +
-                            $"{class1.class_name} public List<{model.model.class_name}> {model.model.class_name}List  " + "{ get; set; }");
-                        }
-                    }
-                }
-                SourceCodeBuilder.AppendLine("");
-                SourceCodeBuilder.AppendLine($"namespace {json.sub_name}");
-                SourceCodeBuilder.AppendLine("{");
-
-                foreach (JsonData.Model model in json.model)
-                {
-                    var states = new List<string>();
-
-                    if (model.states != null)
-                    {
-                        foreach (JsonData.State state in model.states)
-                        {
-                            string stateAdd = state.state_name;
-                            states.Add(stateAdd);
-                        }
-                        SourceCodeBuilder.AppendLine("   " +
-                            $"public enum {model.class_name}States" + "{" + string.Join(", ", states) + "}");
-                        SourceCodeBuilder.AppendLine("");
-                    }
-                }
-
-                // Classes START
-                foreach (JsonData.Model model in json.model)
-                {
-                    if (model.type == "class")
-                    {
-                        var attrInfoList = new List<string>();
-
-                        SourceCodeBuilder.AppendLine($"   public class {model.class_name}");
-                        SourceCodeBuilder.AppendLine("   {");
-
-                        foreach (JsonData.Attribute1 attr in model.attributes)
-                        {
-                            string dataType = attr.data_type;
-                            if ((dataType == "id") || (dataType == "integer"))
-                            {
-                                dataType = "int";
-                            }
-                            else if (dataType == "real")
-                            {
-                                dataType = "double";
-                            }
-
-                            if (attr.data_type == "id" && attr.attribute_type != "referential_attribute")
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"private static int lastAssigned{attr.attribute_name} = 0;");
-                            }
-
-                            if (attr.default_value != null)
-                            {
-                                string input = attr.default_value;
-                                int dot = input.IndexOf('.');
-                                if (dot != -1)
-                                {
-                                    string state = input.Substring(dot + 1);
-                                    SourceCodeBuilder.AppendLine("      " +
-                                        $"public {model.class_name}States {attr.attribute_name} " + "{ get; set; }" + $" = {model.class_name}States.{state}" + ";");
-                                }
-                            }
-                            else if (attr.data_type == "id")
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public {dataType} {attr.attribute_name} " + "{ get; private set; }");
-                            }
-                            else
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public {dataType} {attr.attribute_name} " + "{ get; set; }");
-                            }
-
-                            if (attr.data_type != "state")
-                            {
-                                if (attr.data_type != "id" && attr.attribute_type != "referential_attribute")
-                                {
-                                    string attrInfo = $"{dataType} {attr.attribute_name}";
-                                    attrInfoList.Add(attrInfo);
-                                }
-                            }
-                        }
-                        // Associations START
-                        foreach (var assoc in AssocBuilder.ToString().Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            string assocTrim = assoc.Trim();
-                            int stSpace = assocTrim.IndexOf(' ');
-
-                            if (assocTrim.StartsWith($"{model.class_name} ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    assocTrim.Substring(stSpace + 1));
-                            }
-                        }
-                        // Associations END
-
-                        SourceCodeBuilder.AppendLine("");
-
-                        string constructor = string.Join(", ", attrInfoList);
-                        SourceCodeBuilder.AppendLine("      " +
-                            $"public {model.class_name} ({constructor})");
-                        SourceCodeBuilder.AppendLine("       {");
-                        foreach (JsonData.Attribute1 attr in model.attributes)
-                        {
-                            if (attr.data_type != "state")
-                            {
-                                if (attr.data_type == "id" && attr.attribute_type != "referential_attribute")
-                                {
-                                    SourceCodeBuilder.AppendLine("           " +
-                                    $"{attr.attribute_name} = ++lastAssigned{attr.attribute_name};");
-                                }
-                                else
-                                {
-                                    SourceCodeBuilder.AppendLine("           " +
-                                    $"this.{attr.attribute_name} = {attr.attribute_name};");
-                                }
-                            }
-                        }
-                        SourceCodeBuilder.AppendLine("       }");
-                        SourceCodeBuilder.AppendLine("   }");
-                        SourceCodeBuilder.AppendLine("");
-                    }
-                    // Classes END
-
-                    // Associations1 START
-                    if (model.type == "association" && model.model != null)
-                    {
-                        SourceCodeBuilder.AppendLine("   " +
-                            $"public class {model.model.class_name}");
-                        SourceCodeBuilder.AppendLine("   {");
-
-                        foreach (JsonData.Attribute assocAttr in model.model.attributes)
-                        {
-                            string dataType = assocAttr.data_type;
-                            if ((dataType == "id") || (dataType == "integer"))
-                            {
-                                dataType = "int";
-                            }
-                            else if (dataType == "real")
-                            {
-                                dataType = "double";
-                            }
-                            if (assocAttr.attribute_type == "referential_attribute")
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public {dataType} {assocAttr.attribute_name} " + "{ get; set; } // Referential Attribute");
-                            }
-                            else
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public {dataType} {assocAttr.attribute_name} " + "{ get; set; }");
-                            }
-                        }
-                        SourceCodeBuilder.AppendLine("");
-                        foreach (JsonData.Class1 asoc_class in model.@class)
-                        {
-                            if (asoc_class.class_multiplicity == "1..1")
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public {asoc_class.class_name} {asoc_class.class_name} " + "{ get; set; }");
-                            }
-                            else
-                            {
-                                SourceCodeBuilder.AppendLine("      " +
-                                    $"public List<{asoc_class.class_name}> {asoc_class.class_name}List " + "{ get; set; }");
-                            }
-                        }
-                        SourceCodeBuilder.AppendLine("   }");
-                        SourceCodeBuilder.AppendLine("");
-                    }
-                }
-                // Associations1 END
-
-                SourceCodeBuilder.AppendLine("  class Program");
-                SourceCodeBuilder.AppendLine("  {");
-                SourceCodeBuilder.AppendLine("      static void Main(string[] args)");
-                SourceCodeBuilder.AppendLine("      {");
-                SourceCodeBuilder.AppendLine("          // Write your code here");
-                SourceCodeBuilder.AppendLine("      }");
-                SourceCodeBuilder.AppendLine("  }");
-
-                SourceCodeBuilder.AppendLine("}");
-
-                string SourceCode = SourceCodeBuilder.ToString();
-                richTextBox2.AppendText(SourceCode);
+                converter(umlDiagramJson);
             }
 
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -531,13 +401,7 @@ namespace UMLtoSourceCode
 
         private void btnReset_Click(object sender, EventArgs e)
         {
-            richTextBox1.Clear();
-            richTextBox2.Clear();
-            label1.Text = "";
-            singleJson = null;
-            multiJsonFiles = null;
-            saveButton.Enabled = false;
-            btnConvert.Enabled = false;
+            reset();
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -563,10 +427,25 @@ namespace UMLtoSourceCode
             if (multiJson == true)
             {
                 btnBrowse.Text = "Open Folder";
+                reset();
             }
             else
             {
                 btnBrowse.Text = "Select File";
+                reset();
+            }
+        }
+
+        private void HelpBtn_Click(object sender, EventArgs e)
+        {
+            if (helpWindowInstance == null || helpWindowInstance.IsDisposed)
+            {
+                helpWindowInstance = new HelpWindow();
+                helpWindowInstance.Show();
+            }
+            else
+            {
+                helpWindowInstance.BringToFront();
             }
         }
     }
