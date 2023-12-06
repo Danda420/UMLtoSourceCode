@@ -190,11 +190,11 @@
             // 
             // HelpBtn
             // 
-            this.HelpBtn.Location = new System.Drawing.Point(998, 68);
+            this.HelpBtn.Location = new System.Drawing.Point(1047, 68);
             this.HelpBtn.Name = "HelpBtn";
-            this.HelpBtn.Size = new System.Drawing.Size(75, 23);
+            this.HelpBtn.Size = new System.Drawing.Size(23, 23);
             this.HelpBtn.TabIndex = 10;
-            this.HelpBtn.Text = "Help";
+            this.HelpBtn.Text = "?";
             this.HelpBtn.UseVisualStyleBackColor = true;
             this.HelpBtn.Click += new System.EventHandler(this.HelpBtn_Click);
             // 
