@@ -86,11 +86,11 @@
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(748, 12);
+            this.label2.Location = new System.Drawing.Point(721, 12);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(329, 31);
+            this.label2.Size = new System.Drawing.Size(352, 31);
             this.label2.TabIndex = 5;
-            this.label2.Text = "UML to C# Source Code";
+            this.label2.Text = "xtUML to C# Source Code";
             // 
             // openFileDialog1
             // 
@@ -214,7 +214,7 @@
             this.Controls.Add(this.btnConvert);
             this.Controls.Add(this.btnBrowse);
             this.Name = "Form1";
-            this.Text = "UML to C#";
+            this.Text = "xtUML to C#";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.tabControl1.ResumeLayout(false);
