@@ -44,6 +44,7 @@
             this.multiJsonSwitch = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.HelpBtn = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -170,7 +171,7 @@
             // multiJsonSwitch
             // 
             this.multiJsonSwitch.AutoSize = true;
-            this.multiJsonSwitch.Location = new System.Drawing.Point(13, 68);
+            this.multiJsonSwitch.Location = new System.Drawing.Point(13, 71);
             this.multiJsonSwitch.Name = "multiJsonSwitch";
             this.multiJsonSwitch.Size = new System.Drawing.Size(87, 17);
             this.multiJsonSwitch.TabIndex = 9;
@@ -190,7 +191,7 @@
             // 
             // HelpBtn
             // 
-            this.HelpBtn.Location = new System.Drawing.Point(1047, 68);
+            this.HelpBtn.Location = new System.Drawing.Point(1050, 68);
             this.HelpBtn.Name = "HelpBtn";
             this.HelpBtn.Size = new System.Drawing.Size(23, 23);
             this.HelpBtn.TabIndex = 10;
@@ -198,12 +199,20 @@
             this.HelpBtn.UseVisualStyleBackColor = true;
             this.HelpBtn.Click += new System.EventHandler(this.HelpBtn_Click);
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(106, 70);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(935, 20);
+            this.textBox1.TabIndex = 12;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1089, 646);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.HelpBtn);
             this.Controls.Add(this.multiJsonSwitch);
             this.Controls.Add(this.label1);
@@ -243,6 +252,7 @@
         private System.Windows.Forms.CheckBox multiJsonSwitch;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button HelpBtn;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }
 

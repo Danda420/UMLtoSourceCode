@@ -45,6 +45,7 @@ namespace UMLtoSourceCode
         {
             richTextBox1.Clear();
             richTextBox2.Clear();
+            textBox1.Clear();
             label1.Text = "";
             singleJson = null;
             multiJsonFiles = null;
@@ -113,14 +114,15 @@ namespace UMLtoSourceCode
                 }
             }
             // Assoc Builder END
-
+            SourceCodeBuilder.AppendLine("");
+            SourceCodeBuilder.AppendLine($"// {json.sub_name}");
             SourceCodeBuilder.AppendLine($"namespace {json.sub_name}");
             SourceCodeBuilder.AppendLine("{");
 
             // Classes START
             foreach (JsonData.Model model in json.model)
             {
-                if (model.type == "class")
+                if (model.type == "class" || model.type == "imported_class")
                 {
                     var attrInfoList = new List<string>();
 
@@ -314,6 +316,9 @@ namespace UMLtoSourceCode
                 return;
             }
 
+            textBox1.Clear();
+            textBox1.Text = inputFile;
+
             string umlDiagramJson = File.ReadAllText(inputFile);
 
             label1.Text = "";
@@ -334,11 +339,12 @@ namespace UMLtoSourceCode
             label1.Text = "";
             richTextBox2.Clear();
             tabControl1.SelectTab(tabPage2);
+            textBox1.Clear();
 
             foreach (var jsonFile in inputFolder)
             {
+                textBox1.AppendText($"{jsonFile}, ");
                 string umlDiagramJson = File.ReadAllText(jsonFile);
-
                 converter(umlDiagramJson);
             }
 

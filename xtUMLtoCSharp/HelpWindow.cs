@@ -25,9 +25,6 @@ namespace UMLtoSourceCode
 
         private void HelpWindow_Load(object sender, EventArgs e)
         {
-            richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
-            richTextBox1.AppendText("EN : \n");
-            richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Regular);
             richTextBox1.AppendText("Press 'Select File' button to select .json file to convert \n" +
                 "\n" +
                 "Check 'Multiple Json' checkbox to open folder. this will make the 'Select File' button changes to 'Open Folder' button to read all .json files contained in that folder \n" +
@@ -39,24 +36,6 @@ namespace UMLtoSourceCode
                 "Press 'Download file' button to save the output into a file \n" +
                 "\n" +
                 "Press 'Reset' button to reset input, output, and selected file(s)" +
-                "\n" +
-                "\n" +
-                "============================================\n" +
-                "\n");
-            richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Bold);
-            richTextBox1.AppendText("ID : \n");
-            richTextBox1.SelectionFont = new Font(richTextBox1.Font, FontStyle.Regular);
-            richTextBox1.AppendText("Tekan Tombol 'Select File' untuk memilih file .json yang akan di convert \n" +
-                "\n" +
-                "Centang checkbox 'Multiple Json' untuk membuka folder. ini akan membuat tombol 'Select File' berganti ke tombol 'Open Folder' untuk memilih semua file .json yang ada di folder tersebut \n" +
-                "\n" +
-                "Tekan tombol 'Convert to source code' untuk menconvert file yang dipilih ke c# source code \n" +
-                "\n" +
-                "Output nya akan di displaykan pada tab 'Output' \n" +
-                "\n" +
-                "Tekan tombol 'Download file' untuk menyimpan outputnya ke sebuah file \n" +
-                "\n" +
-                "Tekan tombol 'Reset' untuk mereset input, output, dan file yang dipilih" +
                 "\n" +
                 "\n");
         }
