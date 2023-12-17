@@ -20,18 +20,15 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace UMLtoSourceCode
 {
-    public partial class Form1 : Form
+    public partial class xtUMLtoCSharp : Form
     {
-        private HelpWindow helpWindowInstance;
-        public string singleJson;
-        public string[] multiJsonFiles;
+        public string JSONFile;
         public string dataType;
-        public bool multiJson = false;
 
         StringBuilder SourceCodeBuilder = new StringBuilder();
         StringBuilder AssocBuilder = new StringBuilder();
 
-        public Form1()
+        public xtUMLtoCSharp()
         {
             InitializeComponent();
         }
@@ -45,15 +42,17 @@ namespace UMLtoSourceCode
         {
             richTextBox1.Clear();
             richTextBox2.Clear();
-            textBox1.Clear();
             label1.Text = "";
-            singleJson = null;
-            multiJsonFiles = null;
             saveButton.Enabled = false;
             btnConvert.Enabled = false;
+            btnParsing.Enabled = false;
+            btnVisualize.Enabled = false;
+            btnSimulate.Enabled = false;
+            btnCPCSharp.Enabled = false;
+            btnCPJSON.Enabled = false;
         }
 
-        public void converter(string umlDiagramJson)
+        public void converterJSONtoCSharp(string umlDiagramJson)
         {
             JsonData json = JsonConvert.DeserializeObject<JsonData>(umlDiagramJson);
 
@@ -308,101 +307,46 @@ namespace UMLtoSourceCode
             richTextBox2.AppendText(aBB);
         }
 
-        public void singleJsonConvert(string inputFile)
+        public void JSONtoCSharp(string inputFile)
         {
             if (inputFile == null)
             {
                 label1.Text = "No Json File selected!!";
                 return;
             }
-
-            textBox1.Clear();
-            textBox1.Text = inputFile;
-
             string umlDiagramJson = File.ReadAllText(inputFile);
 
             label1.Text = "";
             richTextBox2.Clear();
-            tabControl1.SelectTab(tabPage2);
 
-            converter(umlDiagramJson);
-        }
-
-        public void multiJsonConvert(IEnumerable<string> inputFolder)
-        {
-            if (inputFolder == null)
-            {
-                label1.Text = "No Folder selected!!";
-                return;
-            }
-
-            label1.Text = "";
-            richTextBox2.Clear();
-            tabControl1.SelectTab(tabPage2);
-            textBox1.Clear();
-
-            foreach (var jsonFile in inputFolder)
-            {
-                textBox1.AppendText($"{jsonFile}, ");
-                string umlDiagramJson = File.ReadAllText(jsonFile);
-                converter(umlDiagramJson);
-            }
-
+            converterJSONtoCSharp(umlDiagramJson);
+            saveButton.Enabled = true;
+            btnCPCSharp.Enabled = true;
+            btnCPJSON.Enabled = true;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
-            if (multiJson == true)
-            {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                dialog.Title = "Open folder containing Json Diagram files";
-                dialog.IsFolderPicker = true;
-                StringBuilder JsonFilesContent = new StringBuilder();
-                JsonFilesContent.Clear();
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "Open Json Diagram File";
+            dialog.Filter = "Json Diagram Files|*.json";
 
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                {
-                    string folderPath = dialog.FileName;
-                    multiJsonFiles = Directory.GetFiles(folderPath, "*.json");
-                    foreach (var jsonFile in multiJsonFiles)
-                    {
-                        string umlDiagramJson = File.ReadAllText(jsonFile);
-                        JsonFilesContent.AppendLine("");
-                        JsonFilesContent.AppendLine(umlDiagramJson);
-                    }
-                    richTextBox1.Text = JsonFilesContent.ToString();
-                    btnConvert.Enabled = true;
-                }
-            }
-            else
+            if (dialog.ShowDialog() == DialogResult.OK)
             {
-                OpenFileDialog dialog = new OpenFileDialog();
-                dialog.Title = "Open Json Diagram File";
-                dialog.Filter = "Json Diagram Files|*.json";
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    singleJson = dialog.FileName;
-                    string displayJson = File.ReadAllText(singleJson);
-                    tabControl1.SelectTab(tabPage1);
-                    richTextBox1.Text = displayJson;
-                    label1.Text = "";
-                    btnConvert.Enabled = true;
-                }
+                JSONFile = dialog.FileName;
+                string displayJson = File.ReadAllText(JSONFile);
+                richTextBox1.Text = displayJson;
+                label1.Text = "";
+                btnConvert.Enabled = true;
+                btnParsing.Enabled = true;
+                btnVisualize.Enabled = true;
+                btnSimulate.Enabled = true;
             }
         }
         
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            if (multiJson == true)
-            {
-                multiJsonConvert(multiJsonFiles);
-            }
-            else
-            {
-                singleJsonConvert(singleJson);
-            }
-            saveButton.Enabled = true;
+                JSONtoCSharp(JSONFile);
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -426,33 +370,28 @@ namespace UMLtoSourceCode
             }
         }
 
-        private void multiJsonSwitch_CheckedChanged(object sender, EventArgs e)
-        {
-            multiJson = multiJsonSwitch.Checked;
-
-            if (multiJson == true)
-            {
-                btnBrowse.Text = "Open Folder";
-                reset();
-            }
-            else
-            {
-                btnBrowse.Text = "Select File";
-                reset();
-            }
-        }
-
         private void HelpBtn_Click(object sender, EventArgs e)
         {
-            if (helpWindowInstance == null || helpWindowInstance.IsDisposed)
-            {
-                helpWindowInstance = new HelpWindow();
-                helpWindowInstance.Show();
-            }
-            else
-            {
-                helpWindowInstance.BringToFront();
-            }
+            MessageBox.Show("1. Press 'Select File' button to select .json file to convert \n" +
+                "\n" +
+                "2. Press 'Translate' button to convert your selected json file into c# source code \n" +
+                "\n" +
+                "3. Output will be displayed on richTextBox \n" +
+                "\n" +
+                "4. Press 'Save' button to save the output into a file \n" +
+                "\n" +
+                "5. Press 'Reset' button to reset input, output, and selected file" +
+                "\n");
+        }
+
+        private void btnCPJSON_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(richTextBox1.Text);
+        }
+
+        private void btnCPCSharp_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(richTextBox2.Text);
         }
     }
 }
