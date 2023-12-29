@@ -24,6 +24,7 @@ namespace UMLtoSourceCode.Class
             public string name { get; set; }
             public Class1[] @class { get; set; }
             public Model1 model { get; set; }
+            public string sub_id { get; set; }
         }
 
         public class Model1
@@ -48,6 +49,14 @@ namespace UMLtoSourceCode.Class
             public string attribute_name { get; set; }
             public string data_type { get; set; }
             public string default_value { get; set; }
+            public string event_id { get; set; }
+            public string event_name { get; set; }
+            public string class_id { get; set; }
+            public string state_id { get; set; }
+            public string state_name { get; set; }
+            public string related_class_id { get; set; }
+            public string related_class_name { get; set; }
+            public string related_class_KL { get; set; }
         }
 
         public class State
@@ -56,8 +65,16 @@ namespace UMLtoSourceCode.Class
             public string state_name { get; set; }
             public string state_value { get; set; }
             public string state_type { get; set; }
-            public string[] state_event { get; set; }
+            public object state_event { get; set; }
             public string[] state_function { get; set; }
+            public Transition[] transitions { get; set; }
+            public string action { get; set; }
+        }
+
+        public class Transition
+        {
+            public string target_state_id { get; set; }
+            public string target_state { get; set; }
         }
 
         public class Class1
@@ -66,5 +83,6 @@ namespace UMLtoSourceCode.Class
             public string class_name { get; set; }
             public string class_multiplicity { get; set; }
         }
+
     }
 }
