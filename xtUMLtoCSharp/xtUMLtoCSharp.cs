@@ -40,16 +40,15 @@ namespace UMLtoSourceCode
 
         public void reset()
         {
-            richTextBox1.Clear();
-            richTextBox2.Clear();
+            textBox2.Clear();
+            textBox3.Clear();
             label1.Text = "";
-            saveButton.Enabled = false;
-            btnConvert.Enabled = false;
-            btnParsing.Enabled = false;
+            btnSave.Enabled = false;
+            btnTranslate.Enabled = false;
+            btnParse.Enabled = false;
             btnVisualize.Enabled = false;
             btnSimulate.Enabled = false;
-            btnCPCSharp.Enabled = false;
-            btnCPJSON.Enabled = false;
+            btnCopy.Enabled = false;
         }
 
         public void converterJSONtoCSharp(string umlDiagramJson)
@@ -448,7 +447,7 @@ namespace UMLtoSourceCode
             SourceCodeBuilder.AppendLine("}");
 
             string SourceCode = SourceCodeBuilder.ToString();
-            richTextBox2.AppendText(SourceCode);
+            textBox3.AppendText(SourceCode);
         }
 
         public void JSONtoCSharp(string inputFile)
@@ -461,12 +460,11 @@ namespace UMLtoSourceCode
             string umlDiagramJson = File.ReadAllText(inputFile);
 
             label1.Text = "";
-            richTextBox2.Clear();
+            textBox3.Clear();
 
             converterJSONtoCSharp(umlDiagramJson);
-            saveButton.Enabled = true;
-            btnCPCSharp.Enabled = true;
-            btnCPJSON.Enabled = true;
+            btnSave.Enabled = true;
+            btnCopy.Enabled = true;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -479,39 +477,19 @@ namespace UMLtoSourceCode
             {
                 JSONFile = dialog.FileName;
                 string displayJson = File.ReadAllText(JSONFile);
-                richTextBox1.Text = displayJson;
+                textBox1.Text = JSONFile;
+                textBox2.Text = displayJson;
                 label1.Text = "";
-                btnConvert.Enabled = true;
-                btnParsing.Enabled = true;
+                btnTranslate.Enabled = true;
+                btnParse.Enabled = true;
                 btnVisualize.Enabled = true;
                 btnSimulate.Enabled = true;
             }
         }
         
-        private void btnConvert_Click(object sender, EventArgs e)
+        private void btnTranslate_Click(object sender, EventArgs e)
         {
                 JSONtoCSharp(JSONFile);
-        }
-
-        private void btnReset_Click(object sender, EventArgs e)
-        {
-            reset();
-        }
-
-        private void saveButton_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog dialog = new SaveFileDialog();
-
-            dialog.Title = "Save into C# Source code";
-            dialog.DefaultExt = "cs";
-            dialog.Filter = "C# Source code (*.cs)|*.cs|C# Source code (*.*)|*.*";
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string fileName = dialog.FileName;
-
-                File.WriteAllText(fileName, richTextBox2.Text);
-            }
         }
 
         private void HelpBtn_Click(object sender, EventArgs e)
@@ -528,14 +506,30 @@ namespace UMLtoSourceCode
                 "\n");
         }
 
-        private void btnCPJSON_Click(object sender, EventArgs e)
+        private void btnCopy_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(richTextBox1.Text);
+            Clipboard.SetText(textBox3.Text);
         }
 
-        private void btnCPCSharp_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(richTextBox2.Text);
+            reset();
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+
+            dialog.Title = "Save into C# Source code";
+            dialog.DefaultExt = "cs";
+            dialog.Filter = "C# Source code (*.cs)|*.cs|C# Source code (*.*)|*.*";
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string fileName = dialog.FileName;
+
+                File.WriteAllText(fileName, textBox3.Text);
+            }
         }
     }
 }
