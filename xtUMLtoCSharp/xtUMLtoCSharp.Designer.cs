@@ -75,13 +75,13 @@
             this.tableLayoutPanel1.Controls.Add(this.textBox3, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.textBox2, 0, 1);
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(146, 177);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(149, 154);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(820, 634);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(822, 512);
             this.tableLayoutPanel1.TabIndex = 38;
             // 
             // label2
@@ -94,7 +94,7 @@
             this.label2.Location = new System.Drawing.Point(2, 0);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(406, 21);
+            this.label2.Size = new System.Drawing.Size(407, 21);
             this.label2.TabIndex = 9;
             this.label2.Text = "JSON";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -106,10 +106,10 @@
             this.label1.BackColor = System.Drawing.Color.Black;
             this.label1.Font = new System.Drawing.Font("Arial", 10.125F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(412, 0);
+            this.label1.Location = new System.Drawing.Point(413, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(406, 21);
+            this.label1.Size = new System.Drawing.Size(407, 21);
             this.label1.TabIndex = 7;
             this.label1.Text = "C#";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -124,12 +124,12 @@
             this.textBox3.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.textBox3.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox3.ForeColor = System.Drawing.Color.Black;
-            this.textBox3.Location = new System.Drawing.Point(412, 23);
+            this.textBox3.Location = new System.Drawing.Point(413, 23);
             this.textBox3.Margin = new System.Windows.Forms.Padding(2);
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
             this.textBox3.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
-            this.textBox3.Size = new System.Drawing.Size(406, 609);
+            this.textBox3.Size = new System.Drawing.Size(407, 609);
             this.textBox3.TabIndex = 11;
             this.textBox3.Text = "";
             this.textBox3.WordWrap = false;
@@ -149,7 +149,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
-            this.textBox2.Size = new System.Drawing.Size(406, 609);
+            this.textBox2.Size = new System.Drawing.Size(407, 609);
             this.textBox2.TabIndex = 12;
             this.textBox2.Text = "";
             this.textBox2.WordWrap = false;
@@ -240,6 +240,7 @@
             this.btnCopy.TabIndex = 32;
             this.btnCopy.Text = "Copy";
             this.btnCopy.UseVisualStyleBackColor = false;
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
             // 
             // btnSave
             // 
@@ -291,13 +292,14 @@
             this.btnHelp.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnHelp.Font = new System.Drawing.Font("Arial", 10.125F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(246)))), ((int)(((byte)(246)))));
-            this.btnHelp.Location = new System.Drawing.Point(24, 771);
+            this.btnHelp.Location = new System.Drawing.Point(24, 627);
             this.btnHelp.Margin = new System.Windows.Forms.Padding(2);
             this.btnHelp.Name = "btnHelp";
             this.btnHelp.Size = new System.Drawing.Size(105, 39);
             this.btnHelp.TabIndex = 27;
             this.btnHelp.Text = "Help";
             this.btnHelp.UseVisualStyleBackColor = false;
+            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
             // 
             // button3
             // 
@@ -339,7 +341,7 @@
             this.textBox1.Location = new System.Drawing.Point(149, 124);
             this.textBox1.Margin = new System.Windows.Forms.Padding(2);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(813, 26);
+            this.textBox1.Size = new System.Drawing.Size(820, 26);
             this.textBox1.TabIndex = 25;
             // 
             // xtUMLtoCSharp

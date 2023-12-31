@@ -17,6 +17,8 @@ using static UMLtoSourceCode.Class.JsonData;
 using Newtonsoft.Json.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Collections;
+using System.Net.NetworkInformation;
 
 namespace UMLtoSourceCode
 {
@@ -40,16 +42,12 @@ namespace UMLtoSourceCode
 
         public void reset()
         {
+            textBox1.Clear();
             textBox2.Clear();
             textBox3.Clear();
-            label1.Text = "";
-            btnSave.Enabled = false;
-            btnTranslate.Enabled = false;
-            btnParse.Enabled = false;
-            btnVisualize.Enabled = false;
-            btnSimulate.Enabled = false;
-            btnCopy.Enabled = false;
+            JSONFile = null;
         }
+        
 
         public void converterJSONtoCSharp(string umlDiagramJson)
         {
@@ -161,19 +159,17 @@ namespace UMLtoSourceCode
                     foreach (JsonData.Attribute1 attr in model.attributes)
                     {
                         string dataType = attr.data_type;
-                        if ((dataType == "id") || (dataType == "integer"))
+                        if (dataType == "id")
+                        {
+                            dataType = "char";
+                        }
+                        else if (dataType == "integer")
                         {
                             dataType = "int";
                         }
                         else if (dataType == "real")
                         {
                             dataType = "double";
-                        }
-
-                        if (attr.data_type == "id" && attr.attribute_type != "referential_attribute")
-                        {
-                            SourceCodeBuilder.AppendLine("      " +
-                                $"private static int lastAssigned{attr.attribute_name} = 0;");
                         }
 
                         if (attr.default_value != null)
@@ -186,6 +182,14 @@ namespace UMLtoSourceCode
                                 SourceCodeBuilder.AppendLine("      " +
                                     $"public {model.class_name}States {attr.attribute_name} " + "{ get; set; }" + $" = {model.class_name}States.{state}" + ";");
                             }
+                            else
+                            {
+                                {
+                                    SourceCodeBuilder.AppendLine("      " +
+                                        $"public {model.class_name}States {attr.attribute_name} " + "{ get; set; }" + $" = {model.class_name}States.{input}" + ";");
+                                }
+                            }
+
                         }
                         else if (attr.data_type == "id")
                         {
@@ -197,7 +201,7 @@ namespace UMLtoSourceCode
                             else
                             {
                                 SourceCodeBuilder.AppendLine("      " +
-                                $"public {dataType} {attr.attribute_name} " + "{ get; private set; }");
+                                $"public {dataType} {attr.attribute_name} " + "{ get; set; }");
                             }
                         }
                         else if (attr.data_type == "inst_event")
@@ -244,7 +248,7 @@ namespace UMLtoSourceCode
 
                         if (attr.data_type != "state" && attr.data_type != "inst_event" && attr.data_type != "inst_ref" && attr.data_type != "inst_ref_set" && attr.data_type != "inst_ref_<timer>")
                         {
-                            if (attr.data_type != "id" && attr.attribute_type != "referential_attribute")
+                            if (attr.attribute_type != "referential_attribute")
                             {
                                 string attrInfo = $"{dataType} {attr.attribute_name}";
                                 attrInfoList.Add(attrInfo);
@@ -269,15 +273,13 @@ namespace UMLtoSourceCode
                     // STATES EVENT AND FUNCTIONS START
                     if (model.states != null)
                     {
-                        SourceCodeBuilder.AppendLine("");
-                        var stateEvents = new List<string>();
-                        var transitions = new StringBuilder();
                         foreach (JsonData.State state in model.states)
                         {
                             if (state.state_function != null)
                             {
                                 foreach (var stateFunction in state.state_function)
                                 {
+                                    SourceCodeBuilder.AppendLine("");
                                     SourceCodeBuilder.AppendLine("      " +  
                                         $"public void {stateFunction}()");
                                     SourceCodeBuilder.AppendLine("      {");
@@ -285,68 +287,79 @@ namespace UMLtoSourceCode
                                     {
                                         if (attr.data_type == "state")
                                         {
+                                            string stateName = state.state_name.Replace(" ", "");
                                             SourceCodeBuilder.AppendLine("           " +
-                                                $"{attr.attribute_name} = {model.class_name}Status.{state.state_value}");
+                                                    $"if ({attr.attribute_name} != {model.class_name}States.{stateName})");
+                                            SourceCodeBuilder.AppendLine("           {");
+                                            SourceCodeBuilder.AppendLine("               " +
+                                                $"{attr.attribute_name} = {model.class_name}States.{stateName};");
+                                            SourceCodeBuilder.AppendLine("           }");
                                         }
                                     }
                                     SourceCodeBuilder.AppendLine("      }");
                                 }
                             }
 
-                            if (state.state_event != null)
+                            void stateEventBuilder(string stateEvent)
                             {
-                                if (state.state_event is JArray stateEventArray)
-                                {
-                                    stateEvents.AddRange(stateEventArray.Select(se => se.ToString()));
-                                }
-                                else if (state.state_event is string stateEventString)
-                                {
-                                    stateEvents.Add(stateEventString);
-                                }
-                            }
-
-                            if (state.transitions != null)
-                            {
-                                foreach (var transition in state.transitions)
-                                {
-                                    string targetState = null;
-                                    foreach (JsonData.State states in model.states)
-                                    {
-                                        if (states.state_id == transition.target_state_id)
-                                        {
-                                            targetState = states.state_event.ToString();
-                                        }
-                                    }
-                                    transitions.AppendLine($"{state.state_event} {targetState}");
-                                }
-                            }
-                        }
-
-                        foreach (var stateEvent in stateEvents)
-                        {
-                            if (transitions != null)
-                            {
+                                SourceCodeBuilder.AppendLine("");
                                 SourceCodeBuilder.AppendLine("      " +
                                         $"public void {stateEvent}()");
-                                SourceCodeBuilder.AppendLine("      " +
-                                    "{");
-                                
-                                foreach (var transition in transitions.ToString().Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
-                                {
-                                    string transitionTrim = transition.Trim();
-                                    int stSpace = transitionTrim.IndexOf(' ');
+                                SourceCodeBuilder.AppendLine("      {");
 
-                                    if (transitionTrim.StartsWith($"{stateEvent} ", StringComparison.OrdinalIgnoreCase))
+                                foreach (JsonData.Attribute1 attr in model.attributes)
+                                {
+                                    if (attr.data_type == "state")
                                     {
-                                        SourceCodeBuilder.AppendLine("         " +
-                                            $"{transitionTrim.Substring(stSpace + 1)}();");
+                                        string stateName = state.state_name.Replace(" ", "");
+                                        SourceCodeBuilder.AppendLine("           " +
+                                                $"if ({attr.attribute_name} != {model.class_name}States.{stateName})");
+                                        SourceCodeBuilder.AppendLine("           {");
+                                        SourceCodeBuilder.AppendLine("               " +
+                                            $"{attr.attribute_name} = {model.class_name}States.{stateName};");
+                                        SourceCodeBuilder.AppendLine("           }");
+
                                     }
                                 }
-                                SourceCodeBuilder.AppendLine("      " +
-                                    "}");
+
+                                if (state.transitions != null)
+                                {
+                                    SourceCodeBuilder.AppendLine("");
+                                    foreach (var transition in state.transitions)
+                                    {
+                                        string targetState = null;
+                                        foreach (JsonData.State states in model.states)
+                                        {
+                                            if (states.state_id == transition.target_state_id)
+                                            {
+                                                targetState = states.state_event.ToString();
+                                            }
+                                        }
+                                        SourceCodeBuilder.AppendLine("           " +
+                                            $"{targetState}();");
+                                    }
+                                }
+                                SourceCodeBuilder.AppendLine("      }");
+                            }
+
+                            if (state.state_event != null)
+                            {
+                                var stateEventArray = state.state_event as JArray;
+                                if (stateEventArray != null)
+                                {
+                                    foreach (var item in stateEventArray)
+                                    {
+                                        string stateEvent = item.ToString();
+                                        stateEventBuilder(stateEvent);
+                                    }
+                                }
+                                else if (state.state_event is string)
+                                {
+                                    string stateEvent = state.state_event.ToString();
+                                    stateEventBuilder(stateEvent);
+                                }
                             }
                         }
-                        transitions.Clear();
                     }
                     // STATES EVENT AND FUNCTIONS END
 
@@ -364,12 +377,7 @@ namespace UMLtoSourceCode
                             && attr.data_type != "inst_ref_set"
                             && attr.attribute_type != "referential_attribute")
                         {
-                            if (attr.data_type == "id")
-                            {
-                                SourceCodeBuilder.AppendLine("           " +
-                                $"{attr.attribute_name} = ++lastAssigned{attr.attribute_name};");
-                            }
-                            else if (attr.data_type == "inst_ref_<timer>")
+                            if (attr.data_type == "inst_ref_<timer>")
                             {
                                 SourceCodeBuilder.AppendLine("           " +
                                     $"{attr.attribute_name} = new {attr.related_class_name}();");
@@ -454,7 +462,7 @@ namespace UMLtoSourceCode
         {
             if (inputFile == null)
             {
-                label1.Text = "No Json File selected!!";
+                MessageBox.Show("No Json File selected!!");
                 return;
             }
             string umlDiagramJson = File.ReadAllText(inputFile);
@@ -463,8 +471,6 @@ namespace UMLtoSourceCode
             textBox3.Clear();
 
             converterJSONtoCSharp(umlDiagramJson);
-            btnSave.Enabled = true;
-            btnCopy.Enabled = true;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -479,31 +485,12 @@ namespace UMLtoSourceCode
                 string displayJson = File.ReadAllText(JSONFile);
                 textBox1.Text = JSONFile;
                 textBox2.Text = displayJson;
-                label1.Text = "";
-                btnTranslate.Enabled = true;
-                btnParse.Enabled = true;
-                btnVisualize.Enabled = true;
-                btnSimulate.Enabled = true;
             }
         }
         
         private void btnTranslate_Click(object sender, EventArgs e)
         {
                 JSONtoCSharp(JSONFile);
-        }
-
-        private void HelpBtn_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("1. Press 'Select File' button to select .json file to convert \n" +
-                "\n" +
-                "2. Press 'Translate' button to convert your selected json file into c# source code \n" +
-                "\n" +
-                "3. Output will be displayed on richTextBox \n" +
-                "\n" +
-                "4. Press 'Save' button to save the output into a file \n" +
-                "\n" +
-                "5. Press 'Reset' button to reset input, output, and selected file" +
-                "\n");
         }
 
         private void btnCopy_Click(object sender, EventArgs e)
@@ -530,6 +517,20 @@ namespace UMLtoSourceCode
 
                 File.WriteAllText(fileName, textBox3.Text);
             }
+        }
+
+        private void btnHelp_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("1. Press 'Select File' button to select .json file to convert \n" +
+                "\n" +
+                "2. Press 'Translate' button to convert your selected json file into c# source code \n" +
+                "\n" +
+                "3. Output will be displayed on richTextBox \n" +
+                "\n" +
+                "4. Press 'Save' button to save the output into a file \n" +
+                "\n" +
+                "5. Press 'Reset' button to reset input, output, and selected file" +
+                "\n", "User Guide", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
