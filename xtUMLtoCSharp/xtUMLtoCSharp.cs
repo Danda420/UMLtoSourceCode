@@ -153,6 +153,8 @@ namespace UMLtoSourceCode
                 {
                     var attrInfoList = new List<string>();
 
+                    string stateAttribute = null;
+
                     SourceCodeBuilder.AppendLine($"   public class {model.class_name}");
                     SourceCodeBuilder.AppendLine("   {");
 
@@ -174,6 +176,7 @@ namespace UMLtoSourceCode
 
                         if (attr.default_value != null)
                         {
+                            stateAttribute = attr.attribute_name;
                             string input = attr.default_value;
                             int dot = input.IndexOf('.');
                             if (dot != -1)
@@ -273,6 +276,48 @@ namespace UMLtoSourceCode
                     // STATES EVENT AND FUNCTIONS START
                     if (model.states != null)
                     {
+                        SourceCodeBuilder.AppendLine("");
+                        SourceCodeBuilder.AppendLine("      " +
+                                        $"public void onStateAction()");
+                        SourceCodeBuilder.AppendLine("      {");
+                        SourceCodeBuilder.AppendLine("           " +
+                            $"switch({stateAttribute})");
+                        SourceCodeBuilder.AppendLine("           {");
+                        foreach (JsonData.State statess in model.states)
+                        {
+                            SourceCodeBuilder.AppendLine("              " +
+                                $"case {model.class_name}States.{statess.state_name.Replace(" ", "")}:");
+                            SourceCodeBuilder.AppendLine("                  " +
+                                "// implementations code here");
+                            if (statess.transitions != null)
+                            {
+                                foreach (var transition in statess.transitions)
+                                {
+                                    string targetState = null;
+                                    foreach (JsonData.State states in model.states)
+                                    {
+                                        if (states.state_id == transition.target_state_id)
+                                        {
+                                            targetState = states.state_event.ToString();
+                                        }
+                                    }
+                                    SourceCodeBuilder.AppendLine("                  " +
+                                        $"if ({stateAttribute} == {model.class_name}States.{transition.target_state.Replace(" ", "")})");
+                                    SourceCodeBuilder.AppendLine("                  {");
+                                    SourceCodeBuilder.AppendLine("                      " +
+                                        $"{targetState}();");
+                                    SourceCodeBuilder.AppendLine("                  }");
+                                }
+                            }
+                            SourceCodeBuilder.AppendLine("                  " +
+                                "break;");
+                        }
+                        SourceCodeBuilder.AppendLine("              " +
+                                $"default:");
+                        SourceCodeBuilder.AppendLine("                  " +
+                                "break;");
+                        SourceCodeBuilder.AppendLine("           }");
+                        SourceCodeBuilder.AppendLine("      }");
                         foreach (JsonData.State state in model.states)
                         {
                             if (state.state_function != null)
@@ -287,12 +332,11 @@ namespace UMLtoSourceCode
                                     {
                                         if (attr.data_type == "state")
                                         {
-                                            string stateName = state.state_name.Replace(" ", "");
                                             SourceCodeBuilder.AppendLine("           " +
-                                                    $"if ({attr.attribute_name} != {model.class_name}States.{stateName})");
+                                                    $"if ({attr.attribute_name} != {model.class_name}States.{state.state_name.Replace(" ", "")})");
                                             SourceCodeBuilder.AppendLine("           {");
                                             SourceCodeBuilder.AppendLine("               " +
-                                                $"{attr.attribute_name} = {model.class_name}States.{stateName};");
+                                                $"{attr.attribute_name} = {model.class_name}States.{state.state_name.Replace(" ", "")};");
                                             SourceCodeBuilder.AppendLine("           }");
                                         }
                                     }
@@ -311,32 +355,13 @@ namespace UMLtoSourceCode
                                 {
                                     if (attr.data_type == "state")
                                     {
-                                        string stateName = state.state_name.Replace(" ", "");
                                         SourceCodeBuilder.AppendLine("           " +
-                                                $"if ({attr.attribute_name} != {model.class_name}States.{stateName})");
+                                                $"if ({attr.attribute_name} != {model.class_name}States.{state.state_name.Replace(" ", "")})");
                                         SourceCodeBuilder.AppendLine("           {");
                                         SourceCodeBuilder.AppendLine("               " +
-                                            $"{attr.attribute_name} = {model.class_name}States.{stateName};");
+                                            $"{attr.attribute_name} = {model.class_name}States.{state.state_name.Replace(" ", "")};");
                                         SourceCodeBuilder.AppendLine("           }");
 
-                                    }
-                                }
-
-                                if (state.transitions != null)
-                                {
-                                    SourceCodeBuilder.AppendLine("");
-                                    foreach (var transition in state.transitions)
-                                    {
-                                        string targetState = null;
-                                        foreach (JsonData.State states in model.states)
-                                        {
-                                            if (states.state_id == transition.target_state_id)
-                                            {
-                                                targetState = states.state_event.ToString();
-                                            }
-                                        }
-                                        SourceCodeBuilder.AppendLine("           " +
-                                            $"{targetState}();");
                                     }
                                 }
                                 SourceCodeBuilder.AppendLine("      }");
@@ -350,7 +375,10 @@ namespace UMLtoSourceCode
                                     foreach (var item in stateEventArray)
                                     {
                                         string stateEvent = item.ToString();
-                                        stateEventBuilder(stateEvent);
+                                        if (!stateEvent.StartsWith("on", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            stateEventBuilder(stateEvent);
+                                        }
                                     }
                                 }
                                 else if (state.state_event is string)
