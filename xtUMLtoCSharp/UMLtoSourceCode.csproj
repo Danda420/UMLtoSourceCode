@@ -61,7 +61,11 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class\CheckPointParsing1115.cs" />
+    <Compile Include="Class\CheckPointParsing15.cs" />
+    <Compile Include="Class\CheckPointParsing610.cs" />
     <Compile Include="Class\JsonData.cs" />
+    <Compile Include="Class\ParsingPoint.cs" />
     <Compile Include="xtUMLtoCSharp.cs">
       <SubType>Form</SubType>
     </Compile>

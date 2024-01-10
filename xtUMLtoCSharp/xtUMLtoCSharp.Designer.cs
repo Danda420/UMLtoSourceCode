@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -49,6 +50,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -81,7 +83,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(822, 512);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(822, 526);
             this.tableLayoutPanel1.TabIndex = 38;
             // 
             // label2
@@ -167,6 +169,7 @@
             this.btnParse.TabIndex = 36;
             this.btnParse.Text = "Parse";
             this.btnParse.UseVisualStyleBackColor = false;
+            this.btnParse.Click += new System.EventHandler(this.btnParse_Click);
             // 
             // label5
             // 
@@ -292,7 +295,7 @@
             this.btnHelp.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnHelp.Font = new System.Drawing.Font("Arial", 10.125F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnHelp.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(246)))), ((int)(((byte)(246)))));
-            this.btnHelp.Location = new System.Drawing.Point(24, 627);
+            this.btnHelp.Location = new System.Drawing.Point(24, 641);
             this.btnHelp.Margin = new System.Windows.Forms.Padding(2);
             this.btnHelp.Name = "btnHelp";
             this.btnHelp.Size = new System.Drawing.Size(105, 39);
@@ -327,7 +330,7 @@
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(105, 39);
             this.btnBrowse.TabIndex = 29;
-            this.btnBrowse.Text = "Select File";
+            this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = false;
             this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
@@ -344,12 +347,17 @@
             this.textBox1.Size = new System.Drawing.Size(820, 26);
             this.textBox1.TabIndex = 25;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
             // xtUMLtoCSharp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(982, 677);
+            this.ClientSize = new System.Drawing.Size(982, 691);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnParse);
             this.Controls.Add(this.label5);
@@ -400,6 +408,7 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }
 
